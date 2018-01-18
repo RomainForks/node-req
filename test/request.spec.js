@@ -14,7 +14,7 @@ const http = require('http')
 const pem = require('pem')
 const https = require('https')
 const test = require('japa')
-const Request = require('../')
+const Request = require('..')
 
 test.group('Http Request', () => {
   test('should parse http request to return all query string parameters', async (assert) => {
@@ -250,7 +250,11 @@ test.group('Http Request', () => {
     assert.plan(1)
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-    pem.createCertificate({days: 1, selfSigned: true}, function (err, keys) {
+    pem.createCertificate({ days: 1, selfSigned: true }, function (err, keys) {
+      if (err) {
+        throw err
+      }
+
       const server = https.createServer({key: keys.serviceKey, cert: keys.certificate}, function (req, res) {
         const secure = Request.secure(req)
         if (err) {
@@ -269,7 +273,7 @@ test.group('Http Request', () => {
         done()
       })
     })
-  })
+  }).timeout(6000)
 
   test('should not return www as subdomain for a given url', async (assert) => {
     assert.plan(1)
